@@ -1,0 +1,28 @@
+name: Run Notebook on Kaggle GPU
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  run-kaggle-notebook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Kaggle CLI
+        run: |
+          pip install kaggle --quiet
+
+      - name: Setup Kaggle API
+        run: |
+          mkdir -p ~/.kaggle
+          echo "{\"username\":\"${{ secrets.KAGGLE_USERNAME }}\",\"key\":\"${{ secrets.KAGGLE_KEY }}\"}" > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json
+
+      - name: Push Notebook to Kaggle
+        run: |
+          kaggle kernels push -p ./notebook_folder --kernel-type notebook
